@@ -127,7 +127,7 @@ function promptUser() {
 getDepartments=()=>{
     log('Showing all Departments');
 
-    const sql=`SELECT departments.id AS id, departments.name AS department FROM departments`;
+    const sql=`SELECT departments.id AS ID, departments.name AS Department FROM departments`;
 
     db.query(sql, (err, rows)=>{
         if (err) throw err;
@@ -135,3 +135,66 @@ getDepartments=()=>{
         promptUser();
     });
 };
+
+getRoles=()=>{
+    log('Showing all roles.');
+    log('');
+
+    const sql = `SELECT roles.id AS Id, roles.title AS Title, roles.salary AS Salary, departments.name AS Department
+                 FROM roles
+                 INNER JOIN departments ON roles.department_id = departments.id`;
+
+    db.query(sql, (err, rows)=>{
+        if(err) throw err;
+        console.table(rows);
+        promptUser();
+    })
+};
+
+getEmployees=()=>{
+    log('');
+    log('Showing all employees');
+    log('');
+
+    const sql = `SELECT employees.id AS Id, CONCAT (employees.first_name," ", employees.last_name) AS Name, roles.title AS Position, departments.name AS Department, roles.salary AS Salary, CONCAT (manager.first_name, " ", manager.last_name) AS Manager
+                 FROM employees
+                 LEFT JOIN roles ON employees.role_id = roles.id
+                 LEFT JOIN departments ON roles.department_id=departments.id
+                 LEFT JOIN employees manager ON employees.manager_id=manager.id`
+
+    db.query(sql, (err, rows)=>{
+        if (err) throw err;
+        console.table(rows);
+        promptUser();
+    })
+};
+
+addDepartments=()=>{
+    inquire.prompt([
+        {
+            name:'Department',
+            type:"input",
+            message: "Enter the name of the Department you would like to add. (required)",
+            validate: deptInput =>{
+                if (deptInput){
+                    return true;
+                } else {
+                    console.log('Please enter the departments name.');
+                    return false;
+                }
+            }
+        }
+    ])
+    .then(answer =>{
+        const sql =`INSERT INTO departments (name)
+                    VALUES (?)`;
+        
+        db.query(sql, answer.Department, (err, result)=>{
+        if (err) throw err;
+        console.log("The Department named " + answer.Department+ " was successfully added!");
+        console.log('');
+
+        getDepartments();
+        })
+    })
+}
