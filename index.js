@@ -120,13 +120,17 @@ function promptUser() {
             }
 
             if(choices === 'Exit'){
-                exit();
+                log('');
+                log('Thank you for using this app!');
+                db.end();
             };
         });
 };
 
 getDepartments=()=>{
+    log('');
     log('Showing all Departments');
+    log('');
 
     const sql=`SELECT departments.id AS ID, departments.name AS Department FROM departments`;
 
@@ -138,6 +142,7 @@ getDepartments=()=>{
 };
 
 getRoles=()=>{
+    log('');
     log('Showing all roles.');
     log('');
 
@@ -587,4 +592,71 @@ deleteRole=()=>{
             })
         })
     })
-}
+};
+
+deleteEmployee=()=>{
+    const employeeSql =`SELECT id, CONCAT(first_name," ",last_name) AS name FROM employees`;
+
+    db.query(employeeSql,(err,rows)=>{
+        if(err) throw err;
+        const employees = rows.map(({id, name})=>({value:id, name:name}));
+
+        inquire.prompt([
+            {
+                type:'list',
+                name:'empList',
+                message:'Select which employee should be deleted.',
+                loop: false,
+                choices: employees
+            }
+        ])
+        .then(answer=>{
+            const sql = `DELETE FROM employees WHERE id = ?`
+            const params = [answer.empList];
+
+            db.query(sql, params, (err, rows)=>{
+                if (err) throw err;
+                log('');
+                log('Employee succesfully deleted');
+                getEmployees();
+            })
+        })
+    })
+};
+
+departmentBudgets=()=>{
+    const deptSql = `SELECT departments.id AS ID, departments.name AS Department FROM departments`;
+
+    db.query(deptSql, (err, rows)=>{
+        if (err) throw err;
+        const departments = rows.map(({ID, Department})=>({value: ID, name:Department}));
+
+        inquire.prompt([
+            {
+                type:'list',
+                name:'chooseDept',
+                message:'Select the Department you would to view the budget for.',
+                loop: false,
+                choices: departments
+            }
+        ])
+        .then(answer=>{
+            const sql =`SELECT departments.name AS Department, SUM(roles.salary) AS Budget
+                        FROM employees
+                        LEFT JOIN roles ON employees.role_id = roles.id
+                        LEFT JOIN departments ON roles.department_id = departments.id
+                        WHERE departments.id =?`;
+            const params = [answer.chooseDept];
+
+            db.query(sql, params, (err, rows)=>{
+                if (err) throw err;
+                log('');
+                log('Viewing the selected departments combined salary budget');
+                log('');
+                console.table(rows);
+                promptUser();
+            })
+        })
+    })
+};
+
