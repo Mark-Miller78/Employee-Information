@@ -197,4 +197,170 @@ addDepartments=()=>{
         getDepartments();
         })
     })
-}
+};
+
+addRoles=()=>{
+    inquire.prompt([
+        {
+            type: 'input',
+            name: 'title',
+            message:'Enter the name of the role.',
+            validate: titleInput =>{
+                if (titleInput){
+                    return true;
+                } else {
+                    console.log('Please enter the roles name.');
+                    return false;
+                }
+            }
+        },
+        {
+            type:'input',
+            name:'salary',
+            message:"Please enter the salary of the role.",
+            validate: salaryInput=>{
+                if(isNaN(salaryInput)){
+                    return "Please enter a number";
+                }
+                return true;
+            }
+        }
+    ])
+    .then(answers=>{
+        const info =[answers.title, answers.salary];
+        const deptSql = `SELECT id, name FROM departments`;
+
+        db.query(deptSql, (err, rows)=>{
+            if(err) throw err;
+
+            const dept = rows.map(({id, name})=>({value: id, name:name}));
+            
+            inquire.prompt([
+                {
+                    type: 'list',
+                    name:'deptList',
+                    message: 'Select the Department the role belongs too.',
+                    choices: dept
+                }
+            ])
+            .then(deptchoice =>{
+                const dept= deptchoice.deptList;
+                info.push(dept);
+
+                const sql = `INSERT INTO roles (title, salary, department_id)
+                            VALUES(?,?,?)`;
+
+                db.query(sql, info, (err, rows)=>{
+                    if (err) throw err;
+                    log('Role succesfully added!');
+
+                    getRoles();
+                });
+            });
+        });
+        
+    });
+
+};
+
+addEmployees=()=>{
+    inquire.prompt([
+        {
+            type: 'input',
+            name:'employeeID',
+            message:'Enter the ID number of the new employee.',
+            validate: idInput=>{
+                if(isNaN(idInput)){
+                    return "Please enter an ID.";
+                }
+                return true;
+            }
+        },
+        {
+            type: 'input',
+            name: 'firstName',
+            message: "Enter the employee's first name",
+            validate: nameInput =>{
+                if (nameInput){
+                    return true;
+                } else {
+                    console.log('Please enter the first name of the employee.');
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'input',
+            name: 'lastName',
+            message: "Enter the employee's last name",
+            validate: nameInput =>{
+                if (nameInput){
+                    return true;
+                } else {
+                    console.log('Please enter the last name of the employee.');
+                    return false;
+                }
+            }
+        },
+    ])
+    .then(answers =>{
+        const params = [answers.employeeID, answers.firstName, answers.lastName];
+        const sql = `SELECT id, title FROM roles`;
+        db.query(sql, params, (err, rows)=>{
+            if (err) throw err;
+            const roles=rows.map(({id, title})=>({value:id, name:title}));
+
+            inquire.prompt([
+                {
+                    type:'list',
+                    name:'roleinput',
+                    message:'Select the role of the employee.',
+                    choices: roles
+                }
+            ])
+            .then(answer=>{
+                params.push(answer.roleinput);
+                const manSql = `SELECT id, CONCAT (first_name," ",last_name) AS name FROM employees`;
+
+                db.query(manSql, params, (err, rows)=>{
+                    if (err) throw err;
+                    const manager = rows.map(({id, name})=>({value: id, name: name}));
+
+                    inquire.prompt([
+                        {
+                            type:'confirm',
+                            name:'confirmManager',
+                            message:'Does this employee have a manager?',
+                            default: false
+                        },
+                        {
+                            type:'list',
+                            name:'manager',
+                            message: 'Select the manager the employee is assigned to.',
+                            choices:manager,
+                            when:({confirmManager})=>{
+                                if(confirmManager === true){
+                                    return true;
+                                } else{
+                                    return false;
+                                }
+                            },
+                        }
+                    ])
+                    .then(answer=>{
+                        params.push(answer.manager);
+
+                        employeeSql = `INSERT INTO employees (id, first_name, last_name, role_id, manager_id)
+                                      VALUES(?,?,?,?,?)`;
+                        db.query(employeeSql, params, (err, rows)=>{
+                            if(err) throw err;
+
+                            log('Employee successfully added!');
+                            getEmployees();
+                        })
+                    });
+                });
+            });
+        });
+    });
+};
