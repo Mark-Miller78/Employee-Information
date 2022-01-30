@@ -1,14 +1,14 @@
+//Ready node modules
 const inquire = require('inquirer');
 const mysql = require('mysql2');
 const cTable = require('console.table');
 const figlet = require('figlet');
-const { prompt } = require('inquirer');
 
 const log= console.log;
 
 require('dotenv').config();
 
-//connect to database
+//database connections 
 const db = mysql.createConnection(
     {
         host: 'localhost',
@@ -18,12 +18,14 @@ const db = mysql.createConnection(
     },
 );
 
+//start database connections
 db.connect(err=>{
     if (err) throw err;
     log('Connected to the roster database!');
     welcomeSign();
 });
 
+//logs display
 welcomeSign =()=>{
 
     log(`================================================================================================================`);
@@ -37,6 +39,7 @@ welcomeSign =()=>{
 }
 
 function promptUser() {
+    //prompts action choices
     inquire.prompt([
         {
             type: 'list',
@@ -132,7 +135,7 @@ getDepartments=()=>{
     log('');
     log('Showing all Departments');
     log('');
-
+    //selects and shows department table
     const sql=`SELECT departments.id AS ID, departments.name AS Department FROM departments`;
 
     db.query(sql, (err, rows)=>{
@@ -141,6 +144,7 @@ getDepartments=()=>{
         log(`================================================================================================================`);
         log('');
         log('');
+        //renders a table in the command terminal based on the data returned from the sql query
         console.table(rows);
         log('');
         log('');
@@ -153,7 +157,7 @@ getRoles=()=>{
     log('');
     log('Showing all roles.');
     log('');
-
+    //Selects and shows roles table
     const sql = `SELECT roles.id AS Id, roles.title AS Title, roles.salary AS Salary, departments.name AS Department
                  FROM roles
                  INNER JOIN departments ON roles.department_id = departments.id`;
@@ -211,6 +215,7 @@ addDepartments=()=>{
             }
         }
     ])
+    //creates new row in departments table based on input value
     .then(answer =>{
         const sql =`INSERT INTO departments (name)
                     VALUES (?)`;
@@ -255,12 +260,13 @@ addRoles=()=>{
         }
     ])
     .then(answers=>{
+        //establishes array to hold values to be inserted into sql 
         const info =[answers.title, answers.salary];
         const deptSql = `SELECT id, name FROM departments`;
 
         db.query(deptSql, (err, rows)=>{
             if(err) throw err;
-
+            //formats rows to be used as choices in the following list
             const dept = rows.map(({id, name})=>({value: id, name:name}));
             
             inquire.prompt([
