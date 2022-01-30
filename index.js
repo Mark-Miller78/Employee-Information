@@ -25,6 +25,8 @@ db.connect(err=>{
 });
 
 welcomeSign =()=>{
+    console.clear();
+
     log(`================================================================================================================`);
     log(``);
     log(``);
@@ -136,7 +138,14 @@ getDepartments=()=>{
 
     db.query(sql, (err, rows)=>{
         if (err) throw err;
+
+        log(`================================================================================================================`);
+        log('');
+        log('');
         console.table(rows);
+        log('');
+        log('');
+        log(`================================================================================================================`);
         promptUser();
     });
 };
@@ -152,7 +161,13 @@ getRoles=()=>{
 
     db.query(sql, (err, rows)=>{
         if(err) throw err;
+        log(`================================================================================================================`);
+        log('');
+        log('');
         console.table(rows);
+        log('');
+        log('');
+        log(`================================================================================================================`);
         promptUser();
     })
 };
@@ -170,7 +185,13 @@ getEmployees=()=>{
 
     db.query(sql, (err, rows)=>{
         if (err) throw err;
+        log(`================================================================================================================`);
+        log('');
+        log('');
         console.table(rows);
+        log('');
+        log('');
+        log(`================================================================================================================`);
         promptUser();
     })
 };
@@ -197,8 +218,10 @@ addDepartments=()=>{
         
         db.query(sql, answer.Department, (err, result)=>{
         if (err) throw err;
-        console.log("The Department named " + answer.Department+ " was successfully added!");
-        console.log('');
+        console.clear();
+        log('');
+        log("The Department was successfully added!");
+        log('');
 
         getDepartments();
         })
@@ -259,8 +282,10 @@ addRoles=()=>{
 
                 db.query(sql, info, (err, rows)=>{
                     if (err) throw err;
+                    console.clear();
+                    log('');
                     log('Role succesfully added!');
-
+                    log('');
                     getRoles();
                 });
             });
@@ -363,7 +388,7 @@ addEmployees=()=>{
                                       VALUES(?,?,?,?,?)`;
                         db.query(employeeSql, params, (err, rows)=>{
                             if(err) throw err;
-
+                            console.clear();
                             log('Employee successfully added!');
                             getEmployees();
                         })
@@ -412,6 +437,7 @@ editEmployeeRole=()=>{
 
                     newRoleSql = `UPDATE employees SET role_id = ? WHERE id = ?`;
                     db.query(newRoleSql, params, (err, rows)=>{
+                        console.clear();
                         if(err) throw err;
                         log('New roles succesfully assigned!');
 
@@ -452,8 +478,8 @@ editEmployeeManager=()=>{
 
             db.query(sql, params, (err, rows)=>{
                 if(err) throw err;
+                console.clear();
                 log("Employee's manager successfully updated!");
-
                 getEmployees();
             })
         })
@@ -487,10 +513,17 @@ employeesByManager=()=>{
 
             db.query(sql, params,(err, rows)=>{
                 if(err) throw err;
+                console.clear();
                 log('');
                 log('Viewing employees assigned to selected manager');
                 log('');
+                log(`================================================================================================================`);
+                log('');
+                log('');
                 console.table(rows);
+                log('');
+                log('');
+                log(`================================================================================================================`);
                 promptUser();
             })
         })
@@ -522,10 +555,17 @@ employeesByDepartment=()=>{
             const params = [answer.departments]
             db.query(sql, params, (err, rows)=>{
                 if(err) throw err;
+                console.clear();
                 log('');
                 log('Viewing employees by selected department.');
                 log('');
+                log(`================================================================================================================`);
+                log('');
+                log('');
                 console.table(rows);
+                log('');
+                log('');
+                log(`================================================================================================================`);
                 promptUser();
             })
         })
@@ -554,6 +594,7 @@ deleteDepartment=()=>{
 
             db.query(sql, params, (err, rows)=>{
                 if (err) throw err;
+                console.clear();
                 log('');
                 log('Department Successfully Deleted!')
                 log('');
@@ -585,6 +626,7 @@ deleteRole=()=>{
 
             db.query(sql, params, (err, rows)=>{
                 if (err) throw err;
+                console.clear();
                 log('');
                 log('Role succesfully deleted');
                 log('');
@@ -616,8 +658,10 @@ deleteEmployee=()=>{
 
             db.query(sql, params, (err, rows)=>{
                 if (err) throw err;
+                console.clear();
                 log('');
                 log('Employee succesfully deleted');
+                log('');
                 getEmployees();
             })
         })
@@ -650,10 +694,17 @@ departmentBudgets=()=>{
 
             db.query(sql, params, (err, rows)=>{
                 if (err) throw err;
+                console.clear();
                 log('');
                 log('Viewing the selected departments combined salary budget');
                 log('');
+                log(`================================================================================================================`);
+                log('');
+                log('');
                 console.table(rows);
+                log('');
+                log('');
+                log(`================================================================================================================`);
                 promptUser();
             })
         })

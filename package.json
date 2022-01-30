@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cli-table": "^0.3.11",
     "console.table": "^0.10.0",
     "dotenv": "^14.3.0",
     "figlet": "^1.5.2",
