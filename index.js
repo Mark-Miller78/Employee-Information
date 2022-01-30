@@ -13,7 +13,7 @@ const db = mysql.createConnection(
     {
         host: 'localhost',
         user:'root',
-        password: process.env.DB_PW,
+        password: 'D@server@78',
         database: 'roster'
     },
 );
@@ -25,7 +25,6 @@ db.connect(err=>{
 });
 
 welcomeSign =()=>{
-    console.clear();
 
     log(`================================================================================================================`);
     log(``);
